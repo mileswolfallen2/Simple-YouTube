@@ -1,193 +1,148 @@
-<p align="left">
-  <img src="./wordmark.svg" alt="Vanilla logo" width="140"> <h1>vanilla chat interface</h1>
+<p align="center">
+  <strong>Simple YouTube</strong>
 </p>
 
-A simple, privacy-first web chat interface for local and cloud AI models from Ollama, LM Studio, OpenAI, Anthropic, HuggingFace, and Google, plus direct integration with the Aider, Goose, and OpenCode CLIs. Comes with 15 ice cream-themed color schemes.
+<p align="center">
+  A browser extension that strips YouTube back down to a video player and a list of videos.
+</p>
 
+---
 
+> **Status: pre-implementation.** There is no extension code in this repository yet.
+> This document describes what Simple YouTube is, what it stands for, and where it is
+> headed. Nothing here is a feature list for software that exists.
 
-## quick start
+---
 
-### starting the web interface:
+## The problem
 
-```bash
-npm start
-```
+YouTube's current interface is not designed to help you watch a video. It is designed to
+keep you on the site, and it is very good at that.
 
-Open `http://localhost:2051` in your browser.
+The modern YouTube home page is an engagement surface. Invidious, Shorts, and "For You"
+feeds are injected into a page whose primary job is to be browsed rather than watched.
+Around the video itself there are end-screen cards, autoplay of the next video, a pause
+overlay that turns a pause into a menu, a "did you know" shelf, a mix shelf, a
+shorts shelf, a shopping shelf, promoted results dressed up as ordinary ones, a
+notification bell, a "don't miss" strip, and a comment section that is, structurally,
+an argument.
 
-- **Running Ollama/LM Studio** — make sure Ollama is running (`ollama serve`), or start the LM Studio local server (Developer tab → Local Server → Start Server).
+None of this is a bug. Each piece is a deliberate, individually reasonable product
+decision that adds up to one outcome: maximum time-on-site. The interface competes with
+the video for attention, and it is winning.
 
-### starting the desktop app:
-**Gelectron Build** — lightweight with a bundled Ollama runtime:
-1. **Auto-install everything** — `./run-this-first.sh` clones and builds Gelectron + gelectron-ollama, installs dependencies, and runs the app. Options: `--run` (install then launch), `--no-build` (reuse an existing Gelectron binary).
+The result is a site that feels exhausting to use and hard to leave, even when you
+enjoy it. That is the part that seems worth fixing.
 
-1. **Run Gelectron app binary** — `npm start -- -g
-`
+## What Simple YouTube is
 
-**Electron Build** — heavier with no bundled Ollama runtime:
-```bash
-npm start -- -e
-```
+An extension that makes YouTube look and behave like a competent video host, circa the
+last time one existed, without pretending the modern site doesn't work.
 
-### setting up cloud models:
+Not a redesign. Not a theme. An **overhaul**: YouTube's own pages, YouTube's own player,
+YouTube's own video URLs, with the interface around the video taken apart and rebuilt
+around the video.
 
-Pick a provider in Settings → AI Model and paste your API key.
+## Principles
 
-## features
+These are the rules we design against. When a feature request and a principle
+disagree, the principle wins and the request needs a better argument.
 
-- **Real-time streaming** — responses appear token-by-token via SSE
-- **Web search** — toggle it in the composer or Settings; your question is searched (DuckDuckGo by default, optional Brave API key) and cited results are injected into the response
-- **Multi-provider** — Ollama, LM Studio, OpenAI, Anthropic, HuggingFace, Google, and the Aider / Goose / OpenCode CLIs
-- **Compare models** — run the same prompt against multiple models side by side
-- **Conversation management** — create, switch, rename, regenerate, export (Markdown/JSON/HTML), and delete chats
-- **Branching edits** — edit an earlier prompt without losing the original path, then move between branches
-- **HuggingFace installer** — search GGUF models and import them into Ollama from the UI
-- **Custom system prompts** — global default plus per-conversation override
-- **Auto-naming** — smart chat titles generated locally via Ollama
-- **Themes** — 15 ice cream color schemes (vanilla, strawberry, mint, lemon, lime, peach, raspberry, lavender, dragonfruit, dreamsicle, blue-moon, chocolate, monochrome, aurora, plum) plus custom JSON themes that can replace colors, accent, logo, mascot, app name, and CSS. Authoring guide: `/themes/themes.html`
-- **Settings UI** — organized tabs (General, AI Model, Chat, Appearance, Shortcuts, Data & Privacy) with pickers for theme, density, text size, accent, and more
-- **Persistent customization** — device-wide settings API plus a theme-independent custom browser/desktop icon
-- **Voice input** — browser-native dictation
-- **File uploads** — attach images and files with OCR/image understanding
-- **Native vision messages** — uploaded images are translated into Ollama, Anthropic, and OpenAI-compatible multimodal formats
-- **Privacy** — all data stays local, nothing leaves your machine unless you use a cloud provider
+1. **The video is the interface.** The player, the title, the channel, and the
+   description are the page. Everything else is secondary and should look it.
 
-### theme colors
+2. **Finite pages beat infinite feeds.** A home page you reach the bottom of is a
+   home page you can leave. A feed with no end has no natural stopping point, and
+   that is the whole mechanism. No infinite scroll. No autoplay of what comes next.
+   No "up next" overlays on the pause screen.
 
-These are the canonical accent, background, and text colors used by the built-in themes. Full palettes, including surfaces, borders, and message colors, live in [`themes/`](./themes).
+3. **Remove by default, opt in explicitly.** The extension's baseline state is the
+   simple one. A person who wants a shelf back can turn that shelf back on. We do not
+   ship a module that only makes things busier.
 
-| Theme | Accent | Background | Text |
-|---|---|---|---|
-| Aurora | `#5CC8D7` | `#10151B` | `#EDF3F5` |
-| Blue Moon | `#4F7EAE` | `#F3F7FA` | `#202830` |
-| Chocolate | `#D69A6D` | `#1C1816` | `#F4ECE6` |
-| Dragonfruit | `#B93F78` | `#FAF6F8` | `#30242A` |
-| Dreamsicle | `#D56D38` | `#FBF6F1` | `#312720` |
-| Lavender | `#7568B2` | `#F7F6FA` | `#292732` |
-| Lemon | `#A98218` | `#FAF8F0` | `#2E2A20` |
-| Lime | `#5F934D` | `#F5F8F3` | `#252C22` |
-| Mint | `#3D876D` | `#F2F7F5` | `#222B27` |
-| Monochrome | `#A1A1A6` | `#121214` | `#F4F4F5` |
-| Peach | `#C66C59` | `#FBF5F2` | `#302622` |
-| Plum | `#85607E` | `#F8F4F7` | `#2D272C` |
-| Raspberry | `#A63F63` | `#FAF5F7` | `#30242A` |
-| Strawberry | `#C84E68` | `#FAF5F6` | `#302426` |
-| Vanilla | `#8A6845` | `#F7F5EF` | `#28251F` |
+4. **Advertising is not a feature.** No promoted results, no shopping shelves, no
+   in-feed ad slots, no masthead units, no "sponsored" videos styled to look organic.
+   Pre-roll and mid-roll are the platform's business; the UI around them is ours.
 
-## requirements
+5. **The site keeps working.** This is a layer over YouTube, not a replacement for
+   it. Accounts, subscriptions, playlists, history, likes, downloads, captions,
+   quality settings, keyboard shortcuts, Picture-in-Picture, and offline playback
+   all continue to work. If Simple YouTube breaks a feature, that is a bug with the
+   same severity as a crash.
 
-- [Node.js](https://nodejs.org) 18+
-- For local models (if using the web interface or Electron): [Ollama](https://ollama.ai) and/or [LM Studio](https://lmstudio.ai) running locally
-- For CLI tools: Aider, Goose, or OpenCode installed and on your PATH
-- For cloud providers: an API key from the respective service
+6. **Accessibility is a floor, not a feature.** Focus must remain where it was.
+   Keyboard shortcuts must keep working. Nothing may be removed that a screen reader
+   user needs in order to operate the page.
 
-## settings
+7. **No tracking, ever.** No accounts, no analytics, no telemetry, no remote config.
+   Settings live in `chrome.storage.local` and nowhere else. The extension makes no
+   network requests of its own. A tool for reducing manipulation is not credible if
+   it is collecting data about you in the background.
 
-Open Settings <kbd>⌘+,</kbd> — the UI is organized into sections:
+8. **Reversible.** One switch turns the extension off and YouTube comes back exactly
+   as it was. The extension holds no state that outlives its own state.
 
-- **Account** — your display name
-- **AI Model** — provider and model selection, HuggingFace model installer
-- **Providers & API keys** — enable optional providers/tools (LM Studio, Aider, Goose, OpenCode) and manage keys; LM Studio includes a connection check
-- **Chat** — global custom system prompt
-- **UI** — theme, density, text size, message accent, and assistant logo position
-- **Keyboard shortcuts** / **Preferences** / **Export** / **Uninstall**
+## What it leaves alone
 
-## project structure
+- **The video.** Codecs, quality ladder, HDR, playback speed, captions, transcript.
+- **The player controls.** The `ytp-*` control bar is YouTube's and works well.
+- **Your account.** Sign-in, subscriptions, watch history, likes, playlists.
+- **URLs.** A Simple YouTube video link is a `youtube.com/watch?v=…` link. Bookmarks
+  and links shared with other people keep working, forever, with or without us.
 
-```
-vanilla-sh/
-├── server.js             Express server entry point
-├── start.js              Launcher (web, Gelectron, Electron)
-├── src/
-│   ├── routes.js         API route definitions
-│   ├── storage.js        File-based conversation persistence
-│   ├── upload.js         File/OCR upload handling
-│   ├── titles.js         Auto-naming titles
-│   ├── system.js         System stats (CPU/RAM/GPU)
-│   ├── providers/        Provider adapters
-│   │   ├── ollama.js     Ollama
-│   │   ├── lmstudio.js   LM Studio (OpenAI-compatible, local)
-│   │   ├── openai.js     OpenAI + base OpenAI-compatible client
-│   │   ├── anthropic.js  Anthropic Claude
-│   │   ├── huggingface.js HuggingFace Inference
-│   │   ├── gemini.js     Google Gemini
-│   │   ├── cli.js        CLI tool base
-│   │   ├── aider.js      Aider CLI
-│   │   ├── goose.js      Goose CLI
-│   │   └── opencode.js   OpenCode CLI
-│   └── ...
-├── public/
-│   ├── index.html        Single-page web UI
-│   ├── app.js            UI logic
-│   └── styles.css
-├── gelectron/            Gelectron desktop wrapper (bundled Ollama)
-├── electron/             Electron desktop wrapper
-├── themes/               JSON color themes + themes.html authoring guide
-├── docs/                 Historical design/task notes
-├── CONTRIBUTING.md       Contributor guide
-├── data/
-│   └── conversations/    Saved conversations (JSON)
-└── config/
-    └── default.json      Server configuration
-```
+## Where it is headed
 
-## api
+A rough ordering, not a commitment. The first milestone is the watch page.
 
-| Endpoint | Description |
-|---|---|
-| `GET /api/health` | Health check |
-| `GET /api/settings` | Fetch persistent, non-secret user settings |
-| `PUT /api/settings` | Update persistent user settings |
-| `GET /api/icon` / `PUT /api/icon` | Fetch or set the theme-independent app icon |
-| `GET /api/tools` | Discover model-callable tools and their JSON schemas |
-| `POST /api/tools/execute` | Execute a named tool with JSON arguments |
-| `GET /api/providers` | List configured providers |
-| `GET /api/models?provider=…` | List available models for a provider |
-| `GET /api/system/stats` | CPU/RAM/GPU usage stats |
-| `GET /api/conversations` | List saved conversations |
-| `POST /api/conversations` | Create a new conversation |
-| `GET /api/conversations/:id` | Get conversation messages |
-| `DELETE /api/conversations/:id` | Delete a conversation |
-| `POST /api/conversations/import` | Import conversations from Markdown/JSON |
-| `POST /api/conversations/:id/name` | Rename a conversation |
-| `POST /api/conversations/:id/regenerate` | Regenerate the last response |
-| `POST /api/conversations/:id/branches/:branchId/activate` | Switch to a saved conversation branch |
-| `POST /api/conversations/:id/erase-last-response` | Erase the last response |
-| `POST /api/chat/stream` | Send a message and stream the response (SSE); optional `search` / `searchBackend` / `searchApiKey` fields enable web-search injection |
-| `POST /api/chat/stop/:conversationId` | Stop an in-progress stream |
-| `POST /api/chat/compare` | Run a prompt against multiple models |
-| `POST /api/chat/compare-stop/:id` | Stop an in-progress comparison |
-| `GET /api/search` | Search conversations |
-| `GET /api/websearch?q=&backend=&key=` | Web search (duckduckgo or brave) — test endpoint |
-| `GET /api/themes` | List available JSON themes |
-| `GET /api/names/prewarm` | Preload the auto-naming model |
-| `GET /api/hf/search` | Search HuggingFace GGUF models |
-| `GET /api/hf/repo` | Inspect a HuggingFace repo |
-| `POST /api/hf/install` | Download a GGUF model into Ollama |
-| `POST /api/upload` | Upload a file (image/audio/document) |
-| `POST /api/uninstall` | Uninstall the app |
+| Stage | Scope |
+| --- | --- |
+| 1 | Watch page. Kill the end screens, the pause overlay, the recommendation sidebar, and autoplay. Make the player the page. |
+| 2 | Home page. Remove Shorts, remove "For You," remove the mix and the shelves, remove the in-feed ad slots. What remains is a list of videos. |
+| 3 | Search and channel pages. Kill the sidebar, the filter carousel, and the promoted results. |
+| 4 | Subscriptions, playlists, and history. A plain chronological list, not a recommendation engine wearing a list's clothes. |
+| 5 | Settings. A small, real settings surface for the things a person might legitimately want back. |
 
-## configuration
+Where the platform ships something genuinely better, we will use it. Where it ships
+something that only serves the engagement metric, we will not.
 
-Server settings live in `config/default.json`:
+## Installing
 
-- `port`: server port (default `2051`)
-- `defaultProvider`: default provider (default `ollama`)
-- `providers`: per-provider settings such as `host`, `baseUrl`, `apiKey`, `defaultModel`, and `requestTimeout`. Cloud API keys can also be entered in the app UI and are stored locally in your browser.
+**Not available yet.** There is no release, and no build to install.
 
-## fonts
+The source is published for review and study. It is not published for redistribution:
+the project is currently under the Diskette Labs Temporary Development License, which
+grants viewing and inspection rights and reserves modification, forking, and
+redistribution. See [`LICENSE.txt`](./LICENSE.txt).
 
-The fonts used in this project are subject to their respective licenses. Please consult the font files included in the repository or their upstream sources for specific license details and attribution requirements.
+When a build is released, it will be installable from the Chrome Web Store and from
+Firefox Add-ons. Until then, see [`CONTRIBUTING.md`](./CONTRIBUTING.md) for how to run
+it locally from source.
+
+## Contributing
+
+Read [`CONTRIBUTING.md`](./CONTRIBUTING.md). It covers the project's governance and
+contributor permissions, the technical constraints that come with modifying a page
+you do not own, and the code conventions.
+
+If you want to help and you are not sure how, the most useful thing you can do is
+report a specific piece of clutter with a link to the page and the browser you saw it
+on. That is genuinely hard to come by, and it directly determines what gets built.
+
+## Project
+
+- **Organization:** Diskette Labs — https://diskettelabs.com/
+- **GitHub:** https://github.com/diskettelabs
+- **Contact:** hello@diskettelabs.com
+- **Project Heads:** Miles Wolf Allen (Development), Owen VanVooren (Design)
 
 ## License
 
-This project is currently distributed under the **Diskette Labs Temporary Development License**.
+Copyright (c) 2026 Diskette Labs. All rights reserved.
 
-The source code is publicly available for transparency, learning, evaluation, testing, and authorized development. However, it may **not be modified, forked, redistributed, republished, sold, sublicensed, relicensed, or used to create derivative works** without express written permission from Diskette Labs.
+Released under the Diskette Labs Temporary Development License. View, inspect, study,
+and run the source; do not modify, fork, redistribute, or relicense it without
+permission. Diskette Labs intends to release a future version under an open-source
+license, and that release will not retroactively change the terms of this one.
 
-Contributors may modify and work on the project only within the permissions granted to them through the project's contributor structure and `CONTRIBUTING.md`.
-
-Diskette Labs intends to release a future version of the project under an open-source license. **That future release will not automatically relicense previous versions.** Versions covered by this license will remain under their existing terms and copyright unless Diskette Labs explicitly states otherwise.
-
-See [`LICENSE`](./LICENSE) and [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the complete terms and project governance.
+Full text in [`LICENSE.txt`](./LICENSE.txt). Governance and contributor permissions in
+[`CONTRIBUTING.md`](./CONTRIBUTING.md).
