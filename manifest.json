@@ -26,6 +26,7 @@
         "src/ui/panel.js",
         "src/ui/rail.js",
         "src/ui/walkout.js",
+        "src/ui/player.js",
         "src/ambient/color.js",
         "src/ambient/ambient.js",
         "src/surfaces/guide.js",
@@ -34,6 +35,7 @@
         "src/surfaces/channel.js",
         "src/surfaces/feed.js",
         "src/surfaces/masthead.js",
+        "src/surfaces/history.js",
         "src/content.js"
       ],
       "css": [

@@ -186,6 +186,72 @@ html[data-syt-enabled="on"] ytd-shorts #spacer {
   background: transparent !important;
 }
 
+/* ── history ────────────────────────────────────────────────── */
+
+/*
+ * History is a list you read, so it gets list geometry.
+ *
+ * YouTube renders it with the same rich-grid renderer as the home feed, which means
+ * a multi-column card grid, oversized thumbnails, and a per-entry hover menu on a
+ * page whose whole purpose is a thin chronological column. Force a single column
+ * with a fixed thumbnail so every row is identical and the eye can run down the
+ * timestamps without re-finding the layout each time.
+ *
+ * The narrow measure is deliberate: at the feed's 1096px a single row of history
+ * has mostly empty space, and long titles become a two-line rag. 720px is about
+ * where a title fits on one line at a readable size.
+ */
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] ytd-rich-grid-renderer,
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] ytd-section-list-renderer {
+  max-width: 720px !important;
+  margin: 0 auto !important;
+  padding: 8px 24px 64px !important;
+}
+
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] {
+  --ytls-item-column-count: 1 !important;
+  --ytls-thumbnail-width: 168px !important;
+}
+
+/*
+ * Day dividers -- "Today", "Yesterday", "March 12". These are the only structure
+ * on the page, so give them a real edge instead of leaving them as loose small
+ * caps floating above an undifferentiated stack.
+ */
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] ytd-rich-section-renderer #title,
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] ytd-item-section-renderer #title,
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] #header.ytd-rich-grid-renderer {
+  color: var(--syt-text) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  padding: 20px 0 8px !important;
+  border-bottom: 1px solid var(--syt-border) !important;
+}
+
+/*
+ * Rows: flush thumbnails, no hover fill. The per-entry "X" (remove from history) is
+ * left in place -- on this page it is the only way to clean anything up, and
+ * principle 5 says break nothing.
+ */
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] yt-lockup-view-model,
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] ytd-video-renderer {
+  --ytls-thumbnail-border-radius: var(--syt-radius-sm) !important;
+  margin-bottom: 4px !important;
+}
+
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] .yt-content-metadata-view-model__metadata,
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] #video-info {
+  color: var(--syt-muted) !important;
+  font-size: 13px !important;
+  line-height: 18px !important;
+}
+
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] .yt-lockup-view-model__metadata,
+html[data-syt-enabled="on"] ytd-browse[page-subtype="history"] #details {
+  padding: 0 !important;
+}
+
 /* ── feeds ──────────────────────────────────────────────────── */
 
 ytd-rich-item-renderer,

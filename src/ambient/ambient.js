@@ -39,12 +39,22 @@
     veil.style.cssText = [
       'position:fixed',
       'inset:0',
-      'z-index:9',
+      // Above the chrome, on purpose. The masthead is z-index 100+ and the rail is
+      // 40, so a veil underneath them tinted the page and left both bars black --
+      // which is not "ambient light", it is ambient light with two holes in it.
+      // pointer-events:none means this is the only layer that does not intercept
+      // input, so being on top costs nothing in interactivity.
+      'z-index:2147483000',
       'pointer-events:none',
       'opacity:0',
       'transition:opacity 1.2s ease',
       'mix-blend-mode:screen',
-      'background:radial-gradient(120% 90% at 50% 42%, var(--syt-ambient-rgb) 0%, transparent 68%)'
+      // Two layers. The first is a tight core behind the player, which is what it
+      // was always for. The second is a much wider, flatter wash anchored to the
+      // top of the viewport so the top bar, the rail and the far corners pick up
+      // some colour too, instead of falling to pure black outside the hotspot.
+      'background:radial-gradient(120% 90% at 50% 42%, var(--syt-ambient-rgb) 0%, transparent 68%),' +
+        'radial-gradient(160% 130% at 50% 0%, rgb(var(--syt-ambient-rgb) / 0.4) 0%, transparent 72%)'
     ].join(';');
     (document.body || document.documentElement).append(veil);
     return veil;
@@ -64,6 +74,7 @@
     const root = document.documentElement;
     root.style.removeProperty('--syt-ambient-rgb');
     root.style.removeProperty('--syt-ambient-glow');
+    root.style.removeProperty('--syt-ambient-chrome');
     lastKey = null;
   }
 
@@ -85,6 +96,20 @@
       '--syt-ambient-glow',
       `0 0 ${settings.ambientSpread * 2}px ${settings.ambientSpread * 0.6}px rgba(${r}, ${g}, ${b}, ${0.16 + strength * 0.5})`
     );
+    /*
+     * A direct tint for the chrome, on top of the veil.
+     *
+     * mix-blend-mode is the elegant way to wash everything, and it is not
+     * dependable here: YouTube's Polymer elements create their own compositing
+     * layers, and a blend against a promoted layer does not always composite the
+     * way the spec says. So the top bar and the rail also get an explicit
+     * background of the same colour at low alpha. If the blend works the two
+     * together read as one wash; if it does not, the bars still take colour.
+     *
+     * Kept well under the veil's own alpha so the doubling is not visible as a
+     * difference between blended and direct areas.
+     */
+    root.style.setProperty('--syt-ambient-chrome', String(0.02 + strength * 0.07));
 
     if (veil) veil.style.opacity = String(0.05 + strength * 0.22);
   }

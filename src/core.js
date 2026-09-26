@@ -80,7 +80,13 @@
 
   function pageKind() {
     if (dom.q('ytd-watch-flexy')) return 'watch';
-    if (dom.q('ytd-reel-video-renderer, ytd-shorts, ytd-reel-shelf-renderer')) return 'shorts';
+    // Classify by the page's own containers. A ytd-reel-shelf-renderer is a widget
+    // embedded in a feed, not the Shorts page: match it here and any home feed
+    // carrying one shelf reports itself as "shorts", which misroutes the ambient
+    // treatment and can throw the budget walkout over the home page. Hiding the
+    // shelf does not help, because we hide with display:none and dom.q() matches
+    // hidden nodes by design -- the master switch relies on that.
+    if (dom.q('ytd-shorts, ytd-reel-video-renderer, ytd-browse[page-subtype="reels"]')) return 'shorts';
     if (dom.q('ytd-browse[page-subtype="channels"]')) return 'channel';
     if (dom.q('ytd-browse[page-subtype="home"]')) return 'home';
     if (dom.q('ytd-search')) return 'search';
@@ -212,11 +218,54 @@
     document.addEventListener('yt-page-data-updated', schedule, true);
     window.addEventListener('popstate', schedule);
 
+    /*
+     * Entering fullscreen is the one state change that does not go through
+     * navigation or a meaningful DOM mutation: the player swaps layout internally
+     * and the sidebar that comes with it appears without the observer noticing
+     * anything we care about. Listen for it directly, or the fullscreen sidebar
+     * survives until the next navigation.
+     */
+    const onFullscreen = () => {
+      // The player settles after the event; one frame of slack is enough and a
+      // timer here is cheaper than re-running every surface on every fullscreen
+      // toggle notification.
+      watchPlayer();
+      requestAnimationFrame(schedule);
+    };
+    document.addEventListener('fullscreenchange', onFullscreen);
+    document.addEventListener('webkitfullscreenchange', onFullscreen);
+
+    /*
+     * And for the other kind of fullscreen.
+     *
+     * YouTube also runs a fullscreen that never touches the Fullscreen API: it
+     * swaps a class on the player and lets CSS do it. That fires no
+     * fullscreenchange, and the observer below watches childList only, so a
+     * sidebar that is meant to appear and disappear with fullscreen would be
+     * re-evaluated by accident rather than by intent. Watch the player's own
+     * attributes instead -- scoped to that one element, because watching
+     * attributes across the whole document would re-run every surface on every
+     * class change YouTube makes.
+     */
+    let watchedPlayer = null;
+    const playerObserver = new MutationObserver(() => requestAnimationFrame(schedule));
+    const watchPlayer = () => {
+      const player = document.querySelector('#movie_player');
+      if (!player || player === watchedPlayer) return;
+      playerObserver.disconnect();
+      watchedPlayer = player;
+      playerObserver.observe(player, { attributes: true, attributeFilter: ['class', 'fullscreen'] });
+    };
+    watchPlayer();
+
     // YouTube's custom events are undocumented and have been renamed before.
     // A debounced observer on the document is the safety net that keeps this
     // working when they do.
     let quiet = null;
     new MutationObserver(() => {
+      // YouTube replaces #movie_player when navigating between videos, which
+      // would leave the observer above watching a detached element. Re-point it.
+      watchPlayer();
       if (quiet) clearTimeout(quiet);
       quiet = setTimeout(schedule, 120);
     }).observe(document.documentElement, { childList: true, subtree: true });

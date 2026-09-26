@@ -29,10 +29,11 @@
     shortsDay: '', // local YYYY-MM-DD the counters belong to
     cheatUnlocked: false,
 
-    // page
-    showGuide: false, // YouTube's own sidebar instead of our rail
-    showRecommendations: false,
-    showComments: true,
+  // page
+  showGuide: false, // YouTube's own sidebar instead of our rail
+  hideFullscreenSidebar: true, // drop the sidebar only while the video is fullscreen
+  showComments: false,
+
 
     // playback
     disableAutoplay: true,

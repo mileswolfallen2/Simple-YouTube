@@ -45,9 +45,10 @@ and rebuilt around the video.
 
 ### The watch page
 
-- No recommendations column. The player is the page.
+- The sidebar stays where it is, so the description and the video keep their usual relationship to it. It disappears only while the video is fullscreen, and comes straight back when you leave.
 - No end screens, no pause overlay, no cards, no annotations, no merch or shopping panels.
 - No autoplay of the next video. It uses YouTube's own switch, so the setting sticks.
+- Comments are hidden, with a **Show** button in the place they would be.
 - Subscribe sits against the profile picture instead of at the end of the row.
 
 ### The feed
@@ -163,8 +164,8 @@ differently depending on where you opened it.
 | Shorts today | 10 | Daily allowance. The counter is separate. |
 | Shorts tomorrow | same | One-day override, self-clearing. 0 means "same as today". |
 | Use YouTube's own sidebar | off | Swaps the rail for the real guide. |
-| Recommended videos | off | Brings back the watch-page column. |
-| Comments | on | |
+| Hide sidebar in fullscreen | on | The watch-page column is hidden while the video is fullscreen, and shown again after. |
+| Comments | off | Hidden by default; a **Show** button sits where they would be, on the watch page. |
 | Compact feed spacing | off | |
 | Next-video autoplay | off | Uses YouTube's own switch so it persists. |
 | End screens, pause overlay, cards | removed | |

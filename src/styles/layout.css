@@ -63,6 +63,14 @@ ytd-watch-metadata {
 #masthead {
   background: var(--syt-bg) !important;
   border-bottom: 1px solid var(--syt-border) !important;
+  /* Ambient tint on the top bar, the same direct-wash treatment the rail gets.
+     The gradient is a single flat stop twice rather than a colour keyword because
+     it has to be composited over the background underneath; setting `background`
+     to the rgb() value would replace --syt-bg instead of laying over it. */
+  background-image: linear-gradient(
+    rgb(var(--syt-ambient-rgb) / var(--syt-ambient-chrome)),
+    rgb(var(--syt-ambient-rgb) / var(--syt-ambient-chrome))
+  ) !important;
 }
 
 /*

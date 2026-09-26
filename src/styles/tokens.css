@@ -26,6 +26,9 @@
   /* Set by the ambient module; absent when ambient is off or the theme is light. */
   --syt-ambient-rgb: 0 0 0;
   --syt-ambient-glow: none;
+  /* Alpha for the direct tint on the chrome, driven by the intensity slider so the
+     bars move with the wash instead of being a fixed amount of colour. */
+  --syt-ambient-chrome: 0;
 
   --syt-radius: 12px;
   --syt-radius-sm: 8px;

@@ -295,7 +295,7 @@ footer { padding: 12px 14px; color: var(--muted); font-size: 11px; }
       const page = el('div', { className: 'group' }, [el('h2', { textContent: 'Page' })]);
       for (const [key, label] of [
         ['showGuide', 'Use YouTube\u2019s own sidebar'],
-        ['showRecommendations', 'Recommended videos on the watch page'],
+        ['hideFullscreenSidebar', 'Hide the sidebar while fullscreen'],
         ['showComments', 'Comments'],
         ['compact', 'Compact feed spacing']
       ]) {

@@ -15,6 +15,26 @@
   ];
 
   /*
+   * Shorts embedded in the feed.
+   *
+   * A separate list from SHELVES because this one is a decision rather than a
+   * shelf cleanup. A reel shelf is a vertical-video slot wedged between ordinary
+   * videos, and it is the most effective attention capture on the home page: you
+   * arrive wanting one video and you are holding a slot machine.
+   *
+   * It was left visible for a while so the budget in shorts.js could count shorts
+   * opened from here. That trade is now reversed deliberately -- you cannot spend
+   * budget on something you cannot reach, and reaching one took a single swipe.
+   * Shorts stay reachable from the rail, where the budget can actually see them.
+   */
+  const REEL_SHELVES = [
+    'ytd-reel-shelf-renderer',
+    'ytd-rich-shelf-renderer[is-shorts]',
+    'ytd-video-renderer:has(a[href^="/shorts/"])',
+    'ytd-rich-item-renderer:has(a[href^="/shorts/"])'
+  ];
+
+  /*
    * The category chip row: "Your custom feed / All / Gaming / Music /
    * Speedcubing / Steam / ..." -- a hundred topics you did not ask for, sitting
    * above the videos. It is a filter for a feed that should not need filtering.
@@ -53,6 +73,7 @@
   function apply(kind) {
     let n =
       dom.hideAll(SHELVES.join(',')) +
+      dom.hideAll(REEL_SHELVES.join(',')) +
       dom.hideAll(CATEGORIES.join(',')) +
       dom.hideAll(PROMOTED.join(','));
 

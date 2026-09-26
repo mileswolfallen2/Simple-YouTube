@@ -47,7 +47,16 @@
   flex-direction: column;
   gap: 2px;
   padding: 8px 6px;
-  background: var(--bg);
+  /* Direct ambient tint, not a hardcoded colour: --syt-ambient-chrome is written
+     by the ambient module and follows the intensity slider, so the rail darkens
+     and warms with the rest of the page instead of being a fixed grey. When
+     ambient is off the variable is 0 and this is exactly --bg. */
+  background:
+    linear-gradient(
+      rgb(var(--syt-ambient-rgb) / var(--syt-ambient-chrome)),
+      rgb(var(--syt-ambient-rgb) / var(--syt-ambient-chrome))
+    ),
+    var(--bg);
   /* The right edge runs the full height of the rail so it meets the bar's
      underline cleanly instead of stopping short and leaving a notch. */
   border-right: 1px solid var(--line);
