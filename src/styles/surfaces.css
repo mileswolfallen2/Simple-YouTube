@@ -1,0 +1,152 @@
+/*
+ * Per-surface overrides.
+ *
+ * The one non-obvious rule here is the channel row. YouTube's watch-page owner
+ * renderer has been restructured more than once; in every current layout the
+ * avatar, the channel name, Subscribe and the notification bell are siblings
+ * somewhere in ytd-video-owner-renderer, so forcing the row to flex and pinning
+ * order gets Subscribe sitting against the profile picture without depending on
+ * which of those layouts shipped this week. watch.js performs the literal move
+ * when the DOM allows it; this is the layout guarantee behind it.
+ */
+
+/* ── left rail ──────────────────────────────────────────────── */
+
+ytd-mini-guide-renderer,
+ytd-app #guide,
+#guide-container {
+  display: none !important;
+}
+
+/* The drawer's own backdrop, opened by the masthead hamburger. */
+tp-yt-app-drawer,
+#guide-backdrop {
+  display: none !important;
+}
+
+/* ── watch: channel row ─────────────────────────────────────── */
+
+ytd-video-owner-renderer,
+ytd-video-owner-renderer #channel-name,
+ytd-video-owner-renderer ytd-channel-name {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+}
+
+ytd-video-owner-renderer #avatar,
+ytd-video-owner-renderer ytd-avatar-renderer {
+  order: 10 !important;
+  flex: 0 0 auto !important;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+ytd-video-owner-renderer ytd-channel-name,
+ytd-video-owner-renderer #channel-title {
+  order: 20 !important;
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+}
+
+ytd-video-owner-renderer ytd-subscribe-button-renderer,
+ytd-video-owner-renderer yt-subscribe-button-renderer {
+  order: 30 !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  margin-inline-start: 4px !important;
+}
+
+ytd-video-owner-renderer ytd-notification-multi-action-button-renderer {
+  order: 40 !important;
+  flex: 0 0 auto !important;
+  margin-inline-start: 0 !important;
+}
+
+ytd-video-owner-renderer #channel-title .yt-content-metadata-view-model__metadata-text {
+  color: var(--syt-muted) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+}
+
+/* ── watch: metadata block ──────────────────────────────────── */
+
+ytd-watch-metadata #title {
+  font-size: 20px !important;
+  line-height: 28px !important;
+  font-weight: 700 !important;
+  margin-bottom: 12px !important;
+}
+
+#top-level-buttons-computed {
+  justify-content: flex-start !important;
+  gap: 8px !important;
+}
+
+ytd-menu-renderer,
+yt-icon-button#button.ytd-menu-renderer {
+  --yt-spec-button-chip-background: var(--syt-chip) !important;
+}
+
+/* ── player ─────────────────────────────────────────────────── */
+
+.ytp-chrome-bottom {
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.55)) !important;
+}
+
+#movie_player {
+  border-radius: var(--syt-radius) !important;
+  overflow: hidden !important;
+}
+
+/* ── feeds ──────────────────────────────────────────────────── */
+
+ytd-rich-item-renderer,
+ytd-video-renderer,
+yt-lockup-view-model {
+  --ytls-thumbnail-border-radius: var(--syt-radius-sm) !important;
+}
+
+ytd-video-renderer:hover,
+ytd-rich-item-renderer:hover,
+yt-lockup-view-model:hover {
+  background: transparent !important;
+}
+
+/* Thumbnails keep their own colors; the chrome around them does not. */
+ytd-thumbnail,
+ytd-thumbnail img,
+yt-image img {
+  border-radius: var(--syt-radius-sm) !important;
+}
+
+/* ── channel pages: no @handle ──────────────────────────────── */
+
+ytd-browse[page-subtype="channels"] #channel-handle,
+ytd-browse[page-subtype="channels"] .channel-handle,
+ytd-browse[page-subtype="channels"] yt-content-header-view-model__metadata .channel-handle,
+ytd-browse[page-subtype="channels"] ytd-channel-name .channel-handle {
+  display: none !important;
+}
+
+/* ── comments ───────────────────────────────────────────────── */
+
+#comments,
+ytd-comments {
+  max-width: var(--syt-video-max) !important;
+  margin: 0 auto !important;
+}
+
+ytd-comments #header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--syt-border) !important;
+}
+
+/* ── scrollbars ─────────────────────────────────────────────── */
+
+* {
+  scrollbar-color: var(--syt-border) transparent !important;
+  scrollbar-width: thin !important;
+}

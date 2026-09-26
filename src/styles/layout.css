@@ -1,0 +1,120 @@
+/*
+ * Page structure.
+ *
+ * Content-script CSS shares the page's author origin, so YouTube's own rules can
+ * out-specify anything written here. Inline display:none !important (set from JS)
+ * is the only thing that always wins, which is why hiding lives in the surface
+ * modules and this file is layout only.
+ */
+
+html,
+body,
+ytd-app {
+  background: var(--syt-bg) !important;
+  color: var(--syt-text) !important;
+  font-family: var(--syt-font) !important;
+}
+
+/* Kill the left gutter the guide used to occupy. */
+ytd-app,
+ytd-app #content,
+ytd-browse,
+ytd-search,
+ytd-watch-flexy {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* ── watch ──────────────────────────────────────────────────── */
+
+ytd-watch-flexy #columns {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  gap: 0 !important;
+}
+
+ytd-watch-flexy #primary {
+  flex: 1 1 auto !important;
+  max-width: var(--syt-video-max) !important;
+  padding: 0 24px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+
+ytd-watch-flexy #primary-inner {
+  max-width: 100% !important;
+}
+
+#above-the-fold,
+#below-the-fold {
+  max-width: 100% !important;
+}
+
+#masthead-container {
+  background: var(--syt-bg) !important;
+}
+
+ytd-watch-metadata,
+#meta {
+  max-width: 100% !important;
+}
+
+/* ── feed pages ─────────────────────────────────────────────── */
+
+ytd-browse,
+ytd-search,
+ytd-browse[page-subtype="home"] #contents,
+ytd-rich-grid-renderer,
+ytd-section-list-renderer {
+  max-width: var(--syt-content-max) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+ytd-rich-grid-renderer {
+  padding: 24px !important;
+}
+
+#masthead {
+  background: var(--syt-bg) !important;
+  border-bottom: 1px solid var(--syt-border) !important;
+}
+
+/* ── typography ─────────────────────────────────────────────── */
+
+.ytd-rich-grid-renderer .yt-lockup-metadata-view-model__title,
+ytd-rich-item-renderer #video-title,
+#video-title {
+  font-size: 16px !important;
+  line-height: 22px !important;
+  font-weight: 500 !important;
+}
+
+#video-title-link,
+a.yt-simple-endpoint {
+  color: var(--syt-text) !important;
+}
+
+.ytd-rich-grid-renderer .yt-content-metadata-view-model__metadata-text,
+#video-info,
+.yt-content-metadata-view-model__metadata {
+  color: var(--syt-muted) !important;
+  font-size: 13px !important;
+}
+
+/* ── compact mode ───────────────────────────────────────────── */
+
+html[data-syt-compact="on"] ytd-rich-grid-renderer {
+  --yt-rich-grid-item-max-width: 240px;
+}
+
+html[data-syt-compact="on"] ytd-rich-grid-renderer {
+  padding: 12px !important;
+}
+
+html[data-syt-compact="on"] ytd-rich-grid-renderer #video-title,
+html[data-syt-compact="on"] .yt-lockup-metadata-view-model__title {
+  font-size: 14px !important;
+  line-height: 19px !important;
+}

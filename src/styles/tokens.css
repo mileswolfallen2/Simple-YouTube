@@ -1,0 +1,36 @@
+/*
+ * Design tokens.
+ *
+ * light-dark() resolves against the used color-scheme, so one token block covers
+ * all three settings: the :root default follows the OS, and the two attribute
+ * selectors below pin it. No duplicated dark values.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --syt-bg: light-dark(#ffffff, #0b0b0d);
+  --syt-surface: light-dark(#ffffff, #131316);
+  --syt-elevated: light-dark(#f2f2f2, #1c1c20);
+  --syt-hover: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.08));
+  --syt-text: light-dark(#0f0f0f, #f2f2f5);
+  --syt-muted: light-dark(#5c5c5c, #9a9aa2);
+  --syt-border: light-dark(#e4e4e7, #26262b);
+  --syt-accent: light-dark(#cc0000, #ff3b30);
+  --syt-chip: light-dark(#f2f2f2, #212127);
+
+  --syt-radius: 12px;
+  --syt-radius-sm: 8px;
+  --syt-gap: 16px;
+  --syt-content-max: 1096px;
+  --syt-video-max: 1280px;
+  --syt-font: "Roboto", "YouTube Sans", Arial, sans-serif;
+}
+
+html[data-syt-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-syt-theme="dark"] {
+  color-scheme: dark;
+}

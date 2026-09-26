@@ -1,0 +1,46 @@
+{
+  "_delta": "Firefox delta from manifest.json. No background service worker is used, so the only real differences are the gecko id (required for install/signing) and the MV3 floor. Keep the two manifests in sync: any change to content_scripts, action, or permissions must be mirrored here. To try it in Firefox, about:debugging -> This Firefox -> Load Temporary Add-on -> pick this file.",
+
+  "manifest_version": 3,
+  "name": "Simple YouTube",
+  "version": "0.1.0",
+  "description": "Strips YouTube back down to a video player and a list of videos. No tracking, no telemetry, no network calls.",
+  "author": "Diskette Labs",
+  "homepage_url": "https://diskettelabs.com/",
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "simple-youtube@diskettelabs.com",
+      "strict_min_version": "109.0"
+    }
+  },
+
+  "permissions": ["storage"],
+  "host_permissions": ["*://*.youtube.com/*"],
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Simple YouTube"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "run_at": "document_start",
+      "all_frames": false,
+      "js": [
+        "src/core.js",
+        "src/surfaces/guide.js",
+        "src/surfaces/watch.js",
+        "src/surfaces/channel.js",
+        "src/surfaces/feed.js",
+        "src/content.js"
+      ],
+      "css": [
+        "src/styles/tokens.css",
+        "src/styles/layout.css",
+        "src/styles/surfaces.css"
+      ]
+    }
+  ]
+}
