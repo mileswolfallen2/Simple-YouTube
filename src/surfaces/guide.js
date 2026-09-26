@@ -15,7 +15,13 @@
     'tp-yt-app-drawer#guide',
     '#guide-container',
     'ytd-mini-guide-renderer',
-    'ytd-app #masthead-container #guide-button'
+    // The three-line menu. Listed several ways because YouTube has moved it
+    // between wrappers before: the long descendant chain is the specific one, the
+    // bare ids are the fallback for when it stops nesting under ytd-app.
+    'ytd-app #masthead-container #guide-button',
+    'ytd-masthead #guide-button',
+    'ytd-masthead #guide-button tp-yt-paper-icon-button',
+    '#guide-button-container'
   ];
 
   function apply() {

@@ -96,6 +96,86 @@ html[data-syt-rail="on"] #masthead-container {
   border-bottom-color: var(--syt-border) !important;
 }
 
+/*
+ * The YouTube logo.
+ *
+ * Structure, because getting this wrong is easy: #logo is an <a> that WRAPS
+ * #logo-icon (the red play button) and the wordmark. So it is either/or on
+ * positioning -- indenting both the parent and the child indents the child twice.
+ *
+ * Position: hiding the hamburger with the guide leaves the logo exactly where the
+ * button was, so it ends up hard against the window edge and out of line with the
+ * rail icons below it. Nudge it into the same column: the rail's inner padding is
+ * 6px and its items are 44px in a 56px strip, so 12px puts the wordmark's optical
+ * left edge on the icons' vertical. Only while the rail is up -- with YouTube's own
+ * sidebar restored, the hamburger comes back and claims that space again.
+ */
+html[data-syt-rail="on"] ytd-masthead #logo {
+  margin-left: 12px !important;
+  padding-left: 0 !important;
+}
+
+/*
+ * Colour: set `color`, not `fill`.
+ *
+ * Earlier versions of this rule forced `fill` on the logo's SVG paths. That was
+ * wrong twice over -- the play button is an SVG of the same shape one level down,
+ * so it got repainted too, and the wordmark is several paths, so forcing the fill
+ * on a partial match produced a logo with a piece missing.
+ *
+ * YouTube's wordmark is painted from `currentColor`, so setting `color` is enough
+ * to follow our theme and cannot touch the play button, which carries YouTube's
+ * brand red as its own fill. One property, no path selectors, nothing to break when
+ * the logo's internals shift.
+ */
+ytd-masthead #logo {
+  color: var(--syt-text) !important;
+  filter: none !important;
+}
+
+/*
+ * The notifications bell, with the Create button gone from its left.
+ *
+ * The unread badge is removed from JS (see surfaces/masthead.js). What is left here
+ * is the presentation: a plain icon at the same optical weight as the rest of the
+ * bar, muted until hover, with no button chip and no red anywhere.
+ *
+ * Scoped to data-syt-enabled rather than data-syt-rail, because the Create button
+ * is clutter regardless of which sidebar is in use -- turning YouTube's own guide
+ * back on should not also bring back an upload button.
+ */
+html[data-syt-enabled="on"] ytd-notification-topbar-button-renderer {
+  display: flex !important;
+  align-items: center !important;
+  margin: 0 2px !important;
+  padding: 0 8px !important;
+  height: 40px !important;
+  border-radius: var(--syt-radius-sm) !important;
+  background: transparent !important;
+  color: var(--syt-muted) !important;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+html[data-syt-enabled="on"] ytd-notification-topbar-button-renderer:hover,
+html[data-syt-enabled="on"] ytd-notification-topbar-button-renderer:focus-within {
+  background: var(--syt-hover) !important;
+  color: var(--syt-text) !important;
+  outline: none !important;
+}
+
+/* The icon itself: fixed size, so the bar does not resize when one loads late. */
+html[data-syt-enabled="on"] ytd-notification-topbar-button-renderer .icon,
+html[data-syt-enabled="on"] ytd-notification-topbar-button-renderer yt-icon {
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 24px !important;
+  opacity: 1 !important;
+}
+
+html[data-syt-enabled="on"] ytd-notification-topbar-button-renderer .popover {
+  display: none !important;
+}
+
 /* ── feed pages ─────────────────────────────────────────────── */
 
 ytd-browse,

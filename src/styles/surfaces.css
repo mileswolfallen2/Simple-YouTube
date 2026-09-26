@@ -106,23 +106,84 @@ yt-icon-button#button.ytd-menu-renderer {
 ytd-watch-flexy #container,
 #player-container-outer,
 #player-container,
-.html5-video-container,
-ytd-reel-video-renderer {
+.html5-video-container {
   box-shadow: var(--syt-ambient-glow) !important;
   transition: box-shadow 1.2s ease;
+}
+
+/*
+ * The reel renderer is deliberately NOT in the glow list above, and needs an
+ * explicit reset to stay that way.
+ *
+ * On the watch page the glow sits behind a 16:9 box, so a large soft shadow reads
+ * as light spilling off the screen. The Shorts reel is a tall narrow column: the
+ * same shadow becomes a vertical smear down both sides of the player, tinted by
+ * whatever colour the ambient sampler happened to pick, which on a true-black page
+ * reads as a grey halo bleeding out of nowhere. It flickers as you swipe because
+ * the reel recycles renderers and the glow re-applies to each new one.
+ *
+ * The veil still covers Shorts, so the page keeps its ambient wash -- it just does
+ * not get the box-shadow version of it.
+ */
+ytd-reel-video-renderer,
+ytd-reel-video-renderer .ytReelPlayerHost,
+#shorts-container,
+ytd-shorts {
+  box-shadow: none !important;
+  transition: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
   #player-container-outer,
   #player-container,
-  .html5-video-container,
-  ytd-reel-video-renderer {
+  .html5-video-container {
     transition: none;
   }
 }
 
 .ytp-chrome-bottom {
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.55)) !important;
+}
+
+/* ── shorts ──────────────────────────────────────────────────── */
+
+/*
+ * The Shorts surface is the one page YouTube paints its own background onto
+ * rather than inheriting the document's. Those reel containers are a near-black
+ * grey (#0f0f0f), not our true black (#000000), so on the dark theme you get a
+ * grey column sitting on a black page -- visible as a seam down the side of the
+ * reel and above and below the player.
+ *
+ * It is intermittent rather than constant because it depends on how much of the
+ * reel container is showing at any moment: mid-scroll, as renderers are recycled
+ * and the gaps between them briefly expose the grey, so it flickers in and out
+ * while you swipe.
+ *
+ * Force every layer of the surface to the theme token. List the wrappers
+ * individually rather than using a wildcard, because a wildcard on ytd-reel-* would
+ * also repaint the player's own inner surfaces, which need to stay untouched or the
+ * video's letterboxing shows the wrong colour.
+ */
+html[data-syt-enabled="on"] ytd-shorts,
+html[data-syt-enabled="on"] #shorts-container,
+html[data-syt-enabled="on"] #shorts-inner-container,
+html[data-syt-enabled="on"] ytd-reel-item-renderer,
+html[data-syt-enabled="on"] ytd-reel-video-renderer,
+html[data-syt-enabled="on"] ytd-reel-video-renderer .ytReelPlayerHost,
+html[data-syt-enabled="on"] ytd-reel-video-renderer[is-active],
+html[data-syt-enabled="on"] ytd-browse[page-subtype="reels"] ytd-rich-grid-renderer {
+  background-color: var(--syt-bg) !important;
+  background-image: none !important;
+}
+
+/*
+ * YouTube pads the reel out with spacer elements to make the scroll feel endless.
+ * They inherit the grey, so they are the part that shows between shorts.
+ */
+html[data-syt-enabled="on"] ytd-reel-video-renderer .ytReelPlayerHostRenderer,
+html[data-syt-enabled="on"] #shorts-container #spacer,
+html[data-syt-enabled="on"] ytd-shorts #spacer {
+  background: transparent !important;
 }
 
 /* ── feeds ──────────────────────────────────────────────────── */

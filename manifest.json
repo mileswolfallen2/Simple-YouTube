@@ -33,6 +33,7 @@
         "src/surfaces/shorts.js",
         "src/surfaces/channel.js",
         "src/surfaces/feed.js",
+        "src/surfaces/masthead.js",
         "src/content.js"
       ],
       "css": [
