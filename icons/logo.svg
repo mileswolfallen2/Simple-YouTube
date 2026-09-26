@@ -14,15 +14,25 @@
     parser, so getting it wrong renders the file as nothing at all.
   -->
 
+  <style>
+    .plate { fill: #0B0B0B; }
+    .play { fill: #F2F2F2; }
+    .rail { fill: #E5484D; }
+    @media (prefers-color-scheme: dark) {
+      .plate { fill: #F2F2F2; }
+      .play { fill: #0B0B0B; }
+    }
+  </style>
 
-  <!-- The player. Near-black rather than pure black so the rounded corner stays
-       visible against a dark toolbar instead of dissolving into it. -->
-  <rect x="4" y="4" width="120" height="120" rx="30" fill="#0B0B0B"/>
+  <!-- The player. Near-black on light pages, inverted by the query above on dark
+       ones, so the rounded corner reads against either. -->
+  <rect class="plate" x="4" y="4" width="120" height="120" rx="30" fill="#0B0B0B"/>
 
-  <!-- The rail: the sidebar, reduced to what it is for. -->
-  <rect x="22" y="44" width="11" height="40" rx="5.5" fill="#E5484D"/>
+  <!-- The rail: the sidebar, reduced to what it is for. Red on both schemes, so
+       it stays the one part of the mark that reads the same either way. -->
+  <rect class="rail" x="22" y="44" width="11" height="40" rx="5.5" fill="#E5484D"/>
 
   <!-- The video. Offset right on purpose: centred alone it would pull the mark's
        combined optical mass left of centre once the rail's weight is added. -->
-  <path d="M62 40 L62 88 L102 64 Z" fill="#F2F2F2"/>
+  <path class="play" d="M62 40 L62 88 L102 64 Z" fill="#F2F2F2"/>
 </svg>
