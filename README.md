@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="icons/logo.svg" width="96" height="96" alt="Simple YouTube">
+</p>
+
+<p align="center">
   <strong>Simple YouTube</strong>
 </p>
 
@@ -188,24 +192,81 @@ in the background.
 
 Stated plainly, because a README that only lists strengths is marketing.
 
-- **The DOM selectors are unverified against live YouTube.** They work against the
-  pages this was built on, but YouTube renames things, and each surface keeps its
-  selector list in one array at the top of its file for exactly that reason.
+- **The DOM selectors are a standing liability.** They were verified against a real
+  watch page in Brave, but YouTube renames things without notice, and each surface
+  keeps its selector list in one array at the top of its file for exactly that
+  reason. The related-video column has already been rebuilt out from under us once
+  — see the roadmap.
 - **The ambient colour usually comes from the fallback path.** Canvas reads of the
   video and the thumbnail are both cross-origin and get blocked, so in practice the
   hash-derived colour is doing most of the work. It is stable per video and never
   ugly, but it is not the video's actual dominant colour.
-- **No extension icon.** It shows up as a default puzzle piece until one is added.
-- **Firefox is untested** beyond loading the manifest.
-- **Playlists, Subscriptions, History and the Shorts page** get the shared feed
-  cleanup but no dedicated layout of their own yet.
-- **Comments are left alone** apart from width and header styling.
+- **Firefox is untested** beyond loading the manifest. The code is the same and the
+  manifest is mirrored, but nobody has clicked anything in it.
+- **Playlists and Subscriptions** get the shared feed cleanup but no dedicated
+  layout of their own yet. History has one; these do not.
+- **Save has not made it into the "…" menu.** YouTube no longer exposes the
+  `menuItems` API it used to, so Save sits in the action bar where YouTube put it.
+  Nothing is lost; the tidy-up is just not done.
+
+## Roadmap
+
+Ordered by what is actually blocking someone, not by what is most fun to build.
+Nothing here is promised; it is a statement of what the next passes are for.
+
+### Now
+
+- **A real logo.** The current mark in `icons/` is a placeholder: a play triangle
+  and a rail, chosen because both survive being shrunk to 16px. It is generated
+  from one geometry definition by `icons/build-icons.mjs` — edit the shapes there,
+  re-run, and the SVG and all four PNGs update together. Chrome will not accept SVG
+  for an extension icon, which is why the bitmaps exist at all.
+- **Save into the "…" menu.** YouTube dropped the `menuItems` API this relied on.
+  The remaining route is injecting a row into the menu popup when it opens, which is
+  a worse bargain than the one it replaces: it means writing rows into YouTube's DOM
+  and hoping the menu does not restyle. Only worth it if the action bar starts
+  feeling genuinely unusable.
+- **Firefox.** Load it, click every surface, find what breaks. The manifest is
+  mirrored and the code is shared, so this is verification rather than porting.
+
+### Next
+
+- **Playlists and Subscriptions layouts.** History sets the pattern — chronological,
+  finite, no shelf chrome. These are the two finite lists the rail still treats as
+  ordinary feeds.
+- **Selector resilience.** The related-video sidebar hid nothing for weeks because
+  `#secondary` stopped existing and the videos became `yt-lockup-view-model`. The
+  fix was to stop naming elements and start finding them by shape. That idea should
+  be applied to the rest of the surfaces before YouTube renames the next one.
+- **Real ambient colour.** Reading the video's actual pixels needs a same-origin
+  frame or a permission the extension should not ask for. If there is a clean way,
+  this is the setting people would screenshot.
+
+### Later
+
+- **Store packaging.** Icons are in place; screenshots, a store description, and a
+  signed Firefox build are not.
+- **Per-surface settings.** One schema is shared by the panel and the popup, but
+  everything currently applies everywhere. A setting that only makes sense on the
+  watch page should say so.
+
+### Not planned
+
+Listed so the absence reads as a decision rather than an oversight.
+
+- **Infinite scroll, "For You" feeds, or autoplay of the next video.** Principle 2.
+- **Telemetry, remote configuration, or sync.** Principle 7. Settings stay local.
+- **Replacing the YouTube player.** The player stays YouTube's, including the parts
+  that are good. The custom control bar is an overlay, never a reimplementation.
+- **A redesign.** The pages stay YouTube's pages. Only the interface around the
+  video is rebuilt.
 
 ## Project structure
 
 ```
 manifest.json            Chromium (MV3)
 manifest.firefox.json    Firefox delta -- keep in sync with the above
+icons/                   Logo and generated PNGs (build-icons.mjs)
 src/
   lib/defaults.js        The one settings schema
   lib/budget.js          Shorts budget, midnight rollover, cheat code
