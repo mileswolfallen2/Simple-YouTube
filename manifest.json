@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Simple YouTube",
-  "version": "0.1.0",
-  "description": "Strips YouTube back down to a video player and a list of videos. No tracking, no telemetry, no network calls.",
+  "version": "0.2.0",
+  "description": "A video player, a list of videos, and a rail of icons. Ambient light sampled from the video. A daily Shorts budget you set. No tracking, no telemetry, no network calls.",
   "author": "Diskette Labs",
   "homepage_url": "https://diskettelabs.com/",
 
@@ -20,9 +20,18 @@
       "run_at": "document_start",
       "all_frames": false,
       "js": [
+        "src/lib/defaults.js",
+        "src/lib/budget.js",
         "src/core.js",
+        "src/ui/icons.js",
+        "src/ui/panel.js",
+        "src/ui/rail.js",
+        "src/ui/walkout.js",
+        "src/ambient/color.js",
+        "src/ambient/ambient.js",
         "src/surfaces/guide.js",
         "src/surfaces/watch.js",
+        "src/surfaces/shorts.js",
         "src/surfaces/channel.js",
         "src/surfaces/feed.js",
         "src/content.js"

@@ -1,5 +1,5 @@
 /**
- * Core runtime. Loaded first, before any surface module.
+ * Core runtime. Loaded first, before any surface or UI module.
  *
  * Everything hangs off a single window.SYT global because content scripts in MV3
  * are plain scripts, not modules -- there is no import graph available here.
@@ -7,17 +7,7 @@
 (() => {
   'use strict';
 
-  const DEFAULTS = {
-    enabled: true,
-    theme: 'system',
-    showGuide: false,
-    showRecommendations: false,
-    disableAutoplay: true,
-    removeDistractions: true,
-    showComments: true,
-    compact: false
-  };
-
+  const { DEFAULTS, resolve } = window.SYT_SETTINGS;
   const LOG = '[syt]';
 
   /* ── settings ──────────────────────────────────────────────── */
@@ -32,24 +22,24 @@
     async load() {
       if (!storage.available()) return;
       const stored = await chrome.storage.local.get(DEFAULTS);
-      Object.assign(settings, DEFAULTS, stored);
-    },
-
-    async set(patch) {
-      Object.assign(settings, patch);
-      if (!storage.available()) return;
-      await chrome.storage.local.set(patch);
+      Object.assign(settings, resolve(stored));
     }
   };
 
   /* ── dom helpers ────────────────────────────────────────────── */
 
+  /*
+   * Selector first, root optional -- the same order as querySelector, and the
+   * order nearly every call site already reads in. The root argument exists only
+   * for the few places that need to scope a lookup to one element; passing a
+   * selector where a root is expected is now impossible to do by accident.
+   */
   const dom = {
-    q(root, selector) {
+    q(selector, root) {
       return (root || document).querySelector(selector);
     },
 
-    qa(root, selector) {
+    qa(selector, root) {
       return Array.from((root || document).querySelectorAll(selector));
     },
 
@@ -74,14 +64,13 @@
     },
 
     hideAll(selector, root) {
-      return dom.qa(root, selector).filter(dom.hide).length;
+      return dom.qa(selector, root).filter((el) => dom.hide(el)).length;
     },
 
     showAll(selector, root) {
-      return dom.qa(root, selector).filter(dom.show).length;
+      return dom.qa(selector, root).filter((el) => dom.show(el)).length;
     },
 
-    /** Hide only when enabled, reveal when not. Used by every setting-driven rule. */
     hideWhen(selector, enabled, root) {
       return enabled ? dom.hideAll(selector, root) : dom.showAll(selector, root);
     }
@@ -90,43 +79,32 @@
   /* ── page kind ──────────────────────────────────────────────── */
 
   function pageKind() {
-    if (dom.q('ytd-watch-flexy, ytd-watch-flexy[is-fullscreen]')) return 'watch';
-    if (dom.q('ytd-reel-shelf-renderer, ytd-shorts')) return 'shorts';
+    if (dom.q('ytd-watch-flexy')) return 'watch';
+    if (dom.q('ytd-reel-video-renderer, ytd-shorts, ytd-reel-shelf-renderer')) return 'shorts';
     if (dom.q('ytd-browse[page-subtype="channels"]')) return 'channel';
     if (dom.q('ytd-browse[page-subtype="home"]')) return 'home';
     if (dom.q('ytd-search')) return 'search';
-    if (dom.q('ytd-browse[page-subtype="playlist"], ytd-playlist-page')) return 'playlist';
     if (dom.q('ytd-browse[page-subtype="subscriptions"]')) return 'subscriptions';
+    if (dom.q('ytd-browse[page-subtype="playlist"], ytd-playlist-page')) return 'playlist';
     if (dom.q('ytd-feed')) return 'feed';
     return 'other';
   }
 
-  /* ── navigation ─────────────────────────────────────────────── */
+  /* ── surfaces ───────────────────────────────────────────────── */
 
-  /**
-   * YouTube is a single-page app: the document loads once and every subsequent
-   * navigation swaps content in place. Stylesheets survive navigation, but any
-   * inline display:none we applied to nodes that no longer exist does not, and
-   * newly created nodes are never seen by a one-shot pass. So every surface is
-   * reapplied on navigation.
-   */
   const surfaces = [];
-  const listeners = new Set();
 
   function register(name, selectors, apply) {
     surfaces.push({ name, selectors, apply });
   }
 
-  function onPage(fn) {
-    listeners.add(fn);
-  }
-
   function runSurfaces(kind) {
-    // The master switch. Everything the extension hides carries data-syt-hidden,
-    // so turning it off is a matter of handing every one of those nodes back.
     if (!settings.enabled) {
+      // The master switch. Everything the extension hides carries
+      // data-syt-hidden, so turning it off is a matter of handing those nodes
+      // back.
       let restored = 0;
-      for (const el of dom.qa(document, '[data-syt-hidden]')) {
+      for (const el of dom.qa('[data-syt-hidden]')) {
         if (dom.show(el)) restored++;
       }
       if (restored) console.info(LOG, `disabled: restored ${restored} element(s)`);
@@ -134,49 +112,26 @@
     }
 
     for (const surface of surfaces) {
-      if (kind !== 'other' && surface.selectors.length && !surface.selectors.some((s) => dom.q(s))) {
-        continue;
-      }
+      if (kind !== 'other' && surface.selectors.length && !surface.selectors.some((s) => dom.q(s))) continue;
       try {
         surface.apply(kind);
       } catch (err) {
         console.error(LOG, `surface "${surface.name}" failed`, err);
       }
     }
-    for (const fn of listeners) {
-      try {
-        fn(kind);
-      } catch (err) {
-        console.error(LOG, 'page listener failed', err);
-      }
-    }
   }
 
   let pending = null;
 
-  function schedule(kind) {
+  function schedule() {
     if (pending) cancelAnimationFrame(pending);
     pending = requestAnimationFrame(() => {
       pending = null;
-      runSurfaces(kind || pageKind());
+      const kind = pageKind();
+      document.documentElement.setAttribute('data-syt-page', kind);
+      runSurfaces(kind);
+      measureMasthead();
     });
-  }
-
-  function onNavigate() {
-    document.documentElement.setAttribute('data-syt-page', pageKind());
-    schedule();
-  }
-
-  function watchNavigation() {
-    document.addEventListener('yt-navigate-finish', onNavigate, true);
-    document.addEventListener('yt-page-data-updated', onNavigate, true);
-    window.addEventListener('popstate', onNavigate);
-
-    // YouTube's custom events are undocumented and have been renamed before.
-    // A debounced observer on ytd-app is the safety net that keeps the extension
-    // working when they do.
-    const start = document.documentElement;
-    new MutationObserver(() => schedule()).observe(start, { childList: true, subtree: true });
   }
 
   /* ── theme ──────────────────────────────────────────────────── */
@@ -184,35 +139,98 @@
   function applyTheme() {
     const root = document.documentElement;
     root.setAttribute('data-syt-theme', settings.theme);
+    root.setAttribute('data-syt-rail', settings.enabled && !settings.showGuide ? 'on' : 'off');
     for (const [key, value] of Object.entries(settings)) {
-      if (key === 'theme') continue;
+      if (key === 'theme' || key.startsWith('ambient') || key === 'isDark' || key === 'ambientForcedOff') continue;
       root.setAttribute(`data-syt-${key.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())}`, value ? 'on' : 'off');
     }
   }
 
+  /* ── masthead ───────────────────────────────────────────────── */
+
+  /*
+   * The rail hangs below the masthead, and the masthead is not 56px everywhere:
+   * it is taller on some breakpoints and collapses as you scroll.
+   *
+   * Measure #masthead-container, not #masthead. The container is the element that
+   * actually paints the bar and carries the border underneath it; #masthead sits
+   * inside it and is a couple of pixels shorter once the border is counted. Sizing
+   * the rail from the inner element left a sliver between the bar and the rail,
+   * which showed up as a box sitting exactly in the corner where they meet.
+   */
+  function measureMasthead() {
+    const bar = dom.q('#masthead-container') || dom.q('#masthead, ytd-masthead');
+    if (!bar) return;
+    const rect = bar.getBoundingClientRect();
+    if (!rect.height) return;
+
+    const root = document.documentElement;
+    root.style.setProperty('--syt-masthead-h', `${Math.round(rect.height)}px`);
+    // The rail is position:fixed, so its offset is viewport-relative. Tracking
+    // the bar's live bottom edge rather than its height keeps the join flush
+    // while the page scrolls and the bar collapses.
+    root.style.setProperty('--syt-rail-top', `${Math.max(0, Math.round(rect.bottom))}px`);
+  }
+
+  let scrollPending = null;
+
+  function onScroll() {
+    if (scrollPending) return;
+    scrollPending = requestAnimationFrame(() => {
+      scrollPending = null;
+      measureMasthead();
+    });
+  }
+
   /* ── boot ───────────────────────────────────────────────────── */
+
+  async function refresh() {
+    await storage.load();
+    applyTheme();
+    schedule();
+    window.SYT_AMBIENT?.refresh();
+    window.SYT_UI?.rail?.sync();
+  }
 
   async function boot() {
     await storage.load();
     applyTheme();
 
+    // The first page's UI can only mount once <body> exists.
+    const mountUI = () => window.SYT_UI?.rail?.mount();
+    if (document.body) mountUI();
+    else document.addEventListener('DOMContentLoaded', mountUI, { once: true });
+
     if (storage.available()) {
       chrome.storage.onChanged.addListener((changes, area) => {
         if (area !== 'local') return;
-        const patch = {};
-        for (const [key, change] of Object.entries(changes)) {
-          if (key in DEFAULTS) patch[key] = change.newValue;
-        }
-        if (Object.keys(patch).length) {
-          Object.assign(settings, patch);
-          applyTheme();
-          schedule();
-        }
+        if (Object.keys(changes).some((k) => k in DEFAULTS)) refresh();
       });
     }
 
-    onNavigate();
-    watchNavigation();
+    document.addEventListener('yt-navigate-finish', schedule, true);
+    document.addEventListener('yt-page-data-updated', schedule, true);
+    window.addEventListener('popstate', schedule);
+
+    // YouTube's custom events are undocumented and have been renamed before.
+    // A debounced observer on the document is the safety net that keeps this
+    // working when they do.
+    let quiet = null;
+    new MutationObserver(() => {
+      if (quiet) clearTimeout(quiet);
+      quiet = setTimeout(schedule, 120);
+    }).observe(document.documentElement, { childList: true, subtree: true });
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    window.SYT_UI?.rail?.mount();
+    measureMasthead();
+
+    window.addEventListener('syt:open-settings', () => window.SYT_UI?.rail?.openPanel?.());
+    window.addEventListener('syt:shorts-changed', () => window.SYT_UI?.rail?.sync());
+
+    schedule();
+    window.SYT_AMBIENT?.start();
   }
 
   window.SYT = {
@@ -223,11 +241,10 @@
     dom,
     pageKind,
     register,
-    onPage,
     schedule,
-    boot
+    boot,
+    refresh
   };
 
-  // Available immediately for the surface modules, which are evaluated before boot().
   applyTheme();
 })();

@@ -128,12 +128,6 @@ If you want to help and you are not sure how, the most useful thing you can do i
 report a specific piece of clutter with a link to the page and the browser you saw it
 on. That is genuinely hard to come by, and it directly determines what gets built.
 
-## Project
-
-- **Organization:** Diskette Labs — https://diskettelabs.com/
-- **GitHub:** https://github.com/diskettelabs
-- **Contact:** hello@diskettelabs.com
-- **Project Heads:** Miles Wolf Allen (Development), Owen VanVooren (Design)
 
 ## License
 

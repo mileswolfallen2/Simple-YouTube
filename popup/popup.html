@@ -3,66 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <title>Simple YouTube</title>
-    <link rel="stylesheet" href="../src/styles/tokens.css" />
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <header>
-      <h1>Simple YouTube</h1>
-      <label class="switch">
-        <input type="checkbox" id="enabled" />
-        <span class="track" aria-hidden="true"></span>
-        <span class="switch-label">Enabled</span>
-      </label>
-    </header>
+    <div id="panel"></div>
 
-    <section>
-      <h2>Theme</h2>
-      <div class="segmented" role="radiogroup" aria-label="Theme">
-        <button type="button" role="radio" data-setting="theme" data-value="system">System</button>
-        <button type="button" role="radio" data-setting="theme" data-value="light">Light</button>
-        <button type="button" role="radio" data-setting="theme" data-value="dark">Dark</button>
-      </div>
-    </section>
-
-    <section>
-      <h2>Page</h2>
-      <label class="row">
-        <input type="checkbox" data-setting="showGuide" />
-        <span>Show the left sidebar</span>
-      </label>
-      <label class="row">
-        <input type="checkbox" data-setting="showRecommendations" />
-        <span>Show recommended videos on the watch page</span>
-      </label>
-      <label class="row">
-        <input type="checkbox" data-setting="showComments" />
-        <span>Show comments</span>
-      </label>
-    </section>
-
-    <section>
-      <h2>Playback</h2>
-      <label class="row">
-        <input type="checkbox" data-setting="disableAutoplay" />
-        <span>Turn off next-video autoplay</span>
-      </label>
-      <label class="row">
-        <input type="checkbox" data-setting="removeDistractions" />
-        <span>Remove end screens, pause overlay, and cards</span>
-      </label>
-    </section>
-
-    <section>
-      <h2>Layout</h2>
-      <label class="row">
-        <input type="checkbox" data-setting="compact" />
-        <span>Compact feed spacing</span>
-      </label>
-    </section>
-
-    <footer>Nothing leaves your browser. No accounts, no analytics.</footer>
-
+    <script src="../src/lib/defaults.js"></script>
+    <script src="../src/lib/budget.js"></script>
+    <script src="../src/ui/panel.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

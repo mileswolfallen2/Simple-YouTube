@@ -42,7 +42,7 @@
    */
   function disableAutoplay() {
     if (!settings.disableAutoplay) return;
-    for (const button of dom.qa(document, AUTONAV)) {
+    for (const button of dom.qa(AUTONAV)) {
       if (button.dataset.sytAutonav === '1') continue;
       button.dataset.sytAutonav = '1';
       if (autoplayIsOn(button)) {
@@ -62,12 +62,12 @@
    * inside the row is safe; rewriting the row's markup wholesale is not.
    */
   function seatSubscribe() {
-    for (const owner of dom.qa(document, 'ytd-video-owner-renderer')) {
-      const avatarHost = dom.q(owner, 'ytd-avatar-renderer, a#avatar, #avatar');
-      const sub = dom.q(owner, 'ytd-subscribe-button-renderer, yt-subscribe-button-renderer');
+    for (const owner of dom.qa('ytd-video-owner-renderer')) {
+      const avatarHost = dom.q('ytd-avatar-renderer, a#avatar, #avatar', owner);
+      const sub = dom.q('ytd-subscribe-button-renderer, yt-subscribe-button-renderer', owner);
       if (!avatarHost || !sub) continue;
 
-      const avatar = dom.q(avatarHost, '#avatar') || avatarHost;
+      const avatar = dom.q('#avatar', avatarHost) || avatarHost;
       const parent = avatar.parentElement;
       if (!parent) continue;
       if (sub.parentElement === parent && sub.previousElementSibling === avatar) {

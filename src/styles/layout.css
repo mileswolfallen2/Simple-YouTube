@@ -15,14 +15,24 @@ ytd-app {
   font-family: var(--syt-font) !important;
 }
 
-/* Kill the left gutter the guide used to occupy. */
-ytd-app,
-ytd-app #content,
-ytd-browse,
-ytd-search,
-ytd-watch-flexy {
-  padding-left: 0 !important;
-  margin-left: 0 !important;
+/*
+ * The rail is position:fixed and expands over the page on hover, so the only
+ * reflow it ever causes is this one constant offset for the collapsed width.
+ *
+ * Exactly one element takes the offset. These containers are nested inside one
+ * another -- ytd-browse lives in ytd-app, ytd-search lives in ytd-browse -- so
+ * padding more than one of them stacks, and the page drifts right by 56px per
+ * level. ytd-app is the outermost, so it is the only one that gets it.
+ */
+html[data-syt-rail="on"] ytd-app {
+  padding-left: var(--syt-rail-w) !important;
+}
+
+html[data-syt-rail="on"] #guide-spacer,
+html[data-syt-rail="on"] ytd-mini-guide-renderer-spacer,
+html[data-syt-rail="on"] ytd-app #guide,
+html[data-syt-rail="on"] #guide-container {
+  display: none !important;
 }
 
 /* ── watch ──────────────────────────────────────────────────── */
@@ -42,22 +52,48 @@ ytd-watch-flexy #primary {
   box-sizing: border-box !important;
 }
 
-ytd-watch-flexy #primary-inner {
-  max-width: 100% !important;
-}
-
+ytd-watch-flexy #primary-inner,
 #above-the-fold,
-#below-the-fold {
+#below-the-fold,
+ytd-watch-metadata {
   max-width: 100% !important;
 }
 
-#masthead-container {
+#masthead-container,
+#masthead {
   background: var(--syt-bg) !important;
+  border-bottom: 1px solid var(--syt-border) !important;
 }
 
-ytd-watch-metadata,
-#meta {
-  max-width: 100% !important;
+/*
+ * The corner where the rail meets the top bar.
+ *
+ * Four layers meet in that 56x56 square: the bar's own background, the border
+ * under the bar, the strip of bar that sits above the rail, and the rail's
+ * background and right edge. YouTube paints the left strip with the hamburger's
+ * hover surface and puts a divider on #start, so the strip does not match the
+ * bar and the join reads as a box sitting in the corner. Fix: one background
+ * across the whole bar, no divider or hover surface in the strip, and the rail's
+ * edge running unbroken from the bar's underside.
+ */
+html[data-syt-rail="on"] ytd-masthead #start,
+html[data-syt-rail="on"] ytd-masthead #start-container,
+html[data-syt-rail="on"] ytd-masthead #guide-button,
+html[data-syt-rail="on"] #masthead-container > #start {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  min-width: 0 !important;
+}
+
+html[data-syt-rail="on"] ytd-masthead #end {
+  border-left: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-syt-rail="on"] #masthead-container {
+  border-bottom-color: var(--syt-border) !important;
 }
 
 /* ── feed pages ─────────────────────────────────────────────── */
@@ -76,14 +112,7 @@ ytd-rich-grid-renderer {
   padding: 24px !important;
 }
 
-#masthead {
-  background: var(--syt-bg) !important;
-  border-bottom: 1px solid var(--syt-border) !important;
-}
-
-/* ── typography ─────────────────────────────────────────────── */
-
-.ytd-rich-grid-renderer .yt-lockup-metadata-view-model__title,
+.yt-lockup-metadata-view-model__title,
 ytd-rich-item-renderer #video-title,
 #video-title {
   font-size: 16px !important;
@@ -96,7 +125,7 @@ a.yt-simple-endpoint {
   color: var(--syt-text) !important;
 }
 
-.ytd-rich-grid-renderer .yt-content-metadata-view-model__metadata-text,
+.yt-content-metadata-view-model__metadata-text,
 #video-info,
 .yt-content-metadata-view-model__metadata {
   color: var(--syt-muted) !important;
@@ -106,15 +135,12 @@ a.yt-simple-endpoint {
 /* ── compact mode ───────────────────────────────────────────── */
 
 html[data-syt-compact="on"] ytd-rich-grid-renderer {
-  --yt-rich-grid-item-max-width: 240px;
-}
-
-html[data-syt-compact="on"] ytd-rich-grid-renderer {
+  --ytls-thumbnail-width: 240px;
   padding: 12px !important;
 }
 
-html[data-syt-compact="on"] ytd-rich-grid-renderer #video-title,
-html[data-syt-compact="on"] .yt-lockup-metadata-view-model__title {
+html[data-syt-compact="on"] .yt-lockup-metadata-view-model__title,
+html[data-syt-compact="on"] ytd-rich-item-renderer #video-title {
   font-size: 14px !important;
   line-height: 19px !important;
 }

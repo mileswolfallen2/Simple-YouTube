@@ -1,4 +1,10 @@
-/** Left navigation rail, the slide-out drawer, and the collapsed mini rail. */
+/**
+ * YouTube's own sidebar.
+ *
+ * Hidden by default, because our rail replaces it. showGuide inverts this: turn
+ * it on and YouTube's guide comes back while the rail stands down, so it is a
+ * choice between the two rather than a pile of switches.
+ */
 (() => {
   'use strict';
 
@@ -9,7 +15,7 @@
     'tp-yt-app-drawer#guide',
     '#guide-container',
     'ytd-mini-guide-renderer',
-    'ytd-app #masthead-container #guide-button' // the hamburger that opens the drawer
+    'ytd-app #masthead-container #guide-button'
   ];
 
   function apply() {
