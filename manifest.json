@@ -1,10 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Simple YouTube",
-  "version": "0.2.0",
-  "description": "A video player, a list of videos, and a rail of icons. Ambient light sampled from the video. A daily Shorts budget you set. No tracking, no telemetry, no network calls.",
-  "author": "Diskette Labs",
-  "homepage_url": "https://diskettelabs.com/",
+  "version": "0.3.0",
+  "description": "A video player, a list of videos, and six icons. Ambient light sampled from the video, and a daily Shorts budget you set. No tracking, no telemetry, no network calls.",
+  "author": "Miles Wolf Allen",
 
   "permissions": ["storage"],
   "host_permissions": ["*://*.youtube.com/*"],

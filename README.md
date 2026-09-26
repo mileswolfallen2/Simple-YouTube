@@ -3,140 +3,242 @@
 </p>
 
 <p align="center">
-  A browser extension that strips YouTube back down to a video player and a list of videos.
+  A browser extension that strips YouTube back down to a video player, a list of
+  videos, and six icons.
 </p>
 
 ---
 
-> **Status: pre-implementation.** There is no extension code in this repository yet.
-> This document describes what Simple YouTube is, what it stands for, and where it is
-> headed. Nothing here is a feature list for software that exists.
+> **Status: working build, loadable from source.** Chromium and Firefox, Manifest V3,
+> no build step, no dependencies. Not yet submitted to any store.
 
 ---
 
 ## The problem
 
-YouTube's current interface is not designed to help you watch a video. It is designed to
-keep you on the site, and it is very good at that.
+YouTube's current interface is not designed to help you watch a video. It is
+designed to keep you on the site, and it is very good at that.
 
-The modern YouTube home page is an engagement surface. Invidious, Shorts, and "For You"
-feeds are injected into a page whose primary job is to be browsed rather than watched.
-Around the video itself there are end-screen cards, autoplay of the next video, a pause
-overlay that turns a pause into a menu, a "did you know" shelf, a mix shelf, a
-shorts shelf, a shopping shelf, promoted results dressed up as ordinary ones, a
-notification bell, a "don't miss" strip, and a comment section that is, structurally,
-an argument.
+The modern home page is an engagement surface. Invidious, Shorts, and "For You"
+feeds are injected into a page whose primary job is to be browsed rather than
+watched. Around the video itself there are end-screen cards, autoplay of the next
+video, a pause overlay that turns a pause into a menu, a "did you know" shelf, a
+mix shelf, a shorts shelf, a shopping shelf, a row of a hundred topic categories
+you did not ask for, promoted results dressed up as ordinary ones, and a comment
+section that is, structurally, an argument.
 
 None of this is a bug. Each piece is a deliberate, individually reasonable product
-decision that adds up to one outcome: maximum time-on-site. The interface competes with
-the video for attention, and it is winning.
+decision that adds up to one outcome: maximum time-on-site. The interface competes
+with the video for attention, and it is winning.
 
 The result is a site that feels exhausting to use and hard to leave, even when you
 enjoy it. That is the part that seems worth fixing.
 
-## What Simple YouTube is
+## What it does
 
-An extension that makes YouTube look and behave like a competent video host, circa the
-last time one existed, without pretending the modern site doesn't work.
+An extension that makes YouTube look and behave like a competent video host, circa
+the last time one existed — without pretending the modern site doesn't work.
 
-Not a redesign. Not a theme. An **overhaul**: YouTube's own pages, YouTube's own player,
-YouTube's own video URLs, with the interface around the video taken apart and rebuilt
-around the video.
+Not a redesign. Not a theme. An **overhaul**: YouTube's own pages, YouTube's own
+player, YouTube's own video URLs, with the interface around the video taken apart
+and rebuilt around the video.
+
+### The watch page
+
+- No recommendations column. The player is the page.
+- No end screens, no pause overlay, no cards, no annotations, no merch or shopping panels.
+- No autoplay of the next video. It uses YouTube's own switch, so the setting sticks.
+- Subscribe sits against the profile picture instead of at the end of the row.
+
+### The feed
+
+- No topic category chips — not "All / Gaming / Music / Speedcubing / Steam", not any of them.
+- No shelves, no mixes, no horizontally scrolling carousels.
+- No promoted results, no in-feed ad slots, no shopping units.
+- A plain vertical list of videos.
+
+### The rail
+
+YouTube's sidebar is replaced by six icons in a 56px strip that expands on hover or
+keyboard focus: **Home, Shorts, Watch later, Subscriptions, History, Settings.**
+Four of those six are finite chronological lists, which is the entire argument for
+having them.
+
+If you would rather have YouTube's real sidebar back, turn on *Use YouTube's own
+sidebar* and the rail stands down.
+
+### Ambient light
+
+A glow sampled from the video, behind the player and washed over the page, in the
+spirit of the old "cinematic mode" but tuned by you.
+
+- **Intensity** 0–100, default 35
+- **Spread** 0–400px, default 120
+- **Saturation** 0–200%, default 120
+
+Dark theme only. On the light theme the controls grey out and say why, because a
+colour wash on white is just a stain.
+
+The colour comes from three strategies in order: reading pixels off the `<video>`
+element, then the video's thumbnail, then a stable colour derived from the video
+ID. The first two can legitimately fail — YouTube serves video and thumbnails
+cross-origin, so a canvas read can be blocked outright. The third always works.
+
+### The Shorts budget
+
+The one part of this that is a feature rather than a subtraction.
+
+You get N shorts a day — 10 by default. When they are gone you get a walkout: a
+procession of shorts marches off the screen and the rail's Shorts icon becomes a
+padlock until local midnight. There is no close button, because a close button is
+a loophole.
+
+The budget counts one short per distinct video that actually starts playing, so
+scrubbing back through the same one does not spend it. You can set a different
+allowance for tomorrow, which applies for exactly one day and then reverts. The
+ceiling and the counter are independent: raising the limit never erases what you
+already watched today.
+
+For testing, enter **55667** in the Shorts section of the settings panel — or in the
+walkout itself — to unlock arbitrary limits.
+
+### Themes
+
+True black (`#000000`) by default, white as an option, or follow the system. On an
+OLED panel true black is genuinely off pixels, which is also what lets the ambient
+glow read as light rather than as a slightly lighter grey box.
 
 ## Principles
 
-These are the rules we design against. When a feature request and a principle
+The rules a change is reviewed against. When a feature request and a principle
 disagree, the principle wins and the request needs a better argument.
 
-1. **The video is the interface.** The player, the title, the channel, and the
-   description are the page. Everything else is secondary and should look it.
-
-2. **Finite pages beat infinite feeds.** A home page you reach the bottom of is a
-   home page you can leave. A feed with no end has no natural stopping point, and
-   that is the whole mechanism. No infinite scroll. No autoplay of what comes next.
-   No "up next" overlays on the pause screen.
-
-3. **Remove by default, opt in explicitly.** The extension's baseline state is the
-   simple one. A person who wants a shelf back can turn that shelf back on. We do not
-   ship a module that only makes things busier.
-
-4. **Advertising is not a feature.** No promoted results, no shopping shelves, no
-   in-feed ad slots, no masthead units, no "sponsored" videos styled to look organic.
-   Pre-roll and mid-roll are the platform's business; the UI around them is ours.
-
-5. **The site keeps working.** This is a layer over YouTube, not a replacement for
-   it. Accounts, subscriptions, playlists, history, likes, downloads, captions,
-   quality settings, keyboard shortcuts, Picture-in-Picture, and offline playback
-   all continue to work. If Simple YouTube breaks a feature, that is a bug with the
-   same severity as a crash.
-
-6. **Accessibility is a floor, not a feature.** Focus must remain where it was.
-   Keyboard shortcuts must keep working. Nothing may be removed that a screen reader
-   user needs in order to operate the page.
-
-7. **No tracking, ever.** No accounts, no analytics, no telemetry, no remote config.
-   Settings live in `chrome.storage.local` and nowhere else. The extension makes no
-   network requests of its own. A tool for reducing manipulation is not credible if
-   it is collecting data about you in the background.
-
-8. **Reversible.** One switch turns the extension off and YouTube comes back exactly
-   as it was. The extension holds no state that outlives its own state.
-
-## What it leaves alone
-
-- **The video.** Codecs, quality ladder, HDR, playback speed, captions, transcript.
-- **The player controls.** The `ytp-*` control bar is YouTube's and works well.
-- **Your account.** Sign-in, subscriptions, watch history, likes, playlists.
-- **URLs.** A Simple YouTube video link is a `youtube.com/watch?v=…` link. Bookmarks
-  and links shared with other people keep working, forever, with or without us.
-
-## Where it is headed
-
-A rough ordering, not a commitment. The first milestone is the watch page.
-
-| Stage | Scope |
-| --- | --- |
-| 1 | Watch page. Kill the end screens, the pause overlay, the recommendation sidebar, and autoplay. Make the player the page. |
-| 2 | Home page. Remove Shorts, remove "For You," remove the mix and the shelves, remove the in-feed ad slots. What remains is a list of videos. |
-| 3 | Search and channel pages. Kill the sidebar, the filter carousel, and the promoted results. |
-| 4 | Subscriptions, playlists, and history. A plain chronological list, not a recommendation engine wearing a list's clothes. |
-| 5 | Settings. A small, real settings surface for the things a person might legitimately want back. |
-
-Where the platform ships something genuinely better, we will use it. Where it ships
-something that only serves the engagement metric, we will not.
+1. **The video is the interface.** The player, the title, the channel, the description.
+2. **Finite pages beat infinite feeds.** No infinite scroll, no next-video autoplay, no
+   end-screen cards. Reaching the bottom of a page is a feature.
+3. **Remove by default, opt in explicitly.** The baseline is the simple state.
+4. **Advertising is not a feature.** No promoted results, no shopping shelves, no in-feed ads.
+5. **The site keeps working.** Accounts, subscriptions, playlists, history, captions,
+   quality, keyboard shortcuts, PiP, downloads. Breaking one of those is a bug at
+   crash severity.
+6. **Accessibility is a floor.** Focus is preserved, shortcuts keep working, nothing a
+   screen reader needs gets removed.
+7. **No tracking, ever.** No telemetry, no remote config, no network calls. Settings live
+   in `chrome.storage.local` and nowhere else.
+8. **Reversible.** One switch in the settings panel turns everything off and YouTube
+   comes back exactly as it was.
 
 ## Installing
 
-**Not available yet.** There is no release, and no build to install.
+There is no store release yet. Load it from source.
 
-The source is published for review and study. It is not published for redistribution:
-the project is currently under the Diskette Labs Temporary Development License, which
-grants viewing and inspection rights and reserves modification, forking, and
-redistribution. See [`LICENSE.txt`](./LICENSE.txt).
+**Chromium** (Chrome, Edge, Brave, Arc)
 
-When a build is released, it will be installable from the Chrome Web Store and from
-Firefox Add-ons. Until then, see [`CONTRIBUTING.md`](./CONTRIBUTING.md) for how to run
-it locally from source.
+1. Open `chrome://extensions`
+2. Turn on **Developer mode**
+3. **Load unpacked** → select this folder
 
-## Contributing
+**Firefox**
 
-Read [`CONTRIBUTING.md`](./CONTRIBUTING.md). It covers the project's governance and
-contributor permissions, the technical constraints that come with modifying a page
-you do not own, and the code conventions.
+1. Open `about:debugging#/runtime/this-firefox`
+2. **Load Temporary Add-on…** → pick `manifest.firefox.json`
 
-If you want to help and you are not sure how, the most useful thing you can do is
-report a specific piece of clutter with a link to the page and the browser you saw it
-on. That is genuinely hard to come by, and it directly determines what gets built.
+Firefox temporary add-ons are cleared when the browser restarts; that is expected
+until the add-on is signed.
 
+## Settings
+
+Everything lives in one schema, `src/lib/defaults.js`, which the content script, the
+in-page panel, and the browser popup all read — so a setting can never behave
+differently depending on where you opened it.
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| Simple YouTube | on | Master switch. Off restores YouTube exactly. |
+| Theme | Dark | True black, Light (white), or System. |
+| Ambient light | on | Dark theme only. |
+| — Intensity | 35 | 0–100. |
+| — Spread | 120 | 0–400px. |
+| — Saturation | 120 | 0–200%. |
+| Shorts today | 10 | Daily allowance. The counter is separate. |
+| Shorts tomorrow | same | One-day override, self-clearing. 0 means "same as today". |
+| Use YouTube's own sidebar | off | Swaps the rail for the real guide. |
+| Recommended videos | off | Brings back the watch-page column. |
+| Comments | on | |
+| Compact feed spacing | off | |
+| Next-video autoplay | off | Uses YouTube's own switch so it persists. |
+| End screens, pause overlay, cards | removed | |
+
+## Privacy
+
+The extension requests exactly one permission: `storage`. It has no accounts, no
+analytics, no remote configuration, and no code that sends data anywhere. Settings
+live in `chrome.storage.local` and nowhere else.
+
+The one outbound request in the codebase is the ambient light sampler loading
+`i.ytimg.com` for the current video's thumbnail — YouTube's own CDN, for an image
+YouTube has already served you, and only when the ambient light is on. It is a
+request for a picture, not a request that reports anything about you.
+
+A tool for reducing manipulation is not credible if it is collecting data about you
+in the background.
+
+## Known gaps
+
+Stated plainly, because a README that only lists strengths is marketing.
+
+- **The DOM selectors are unverified against live YouTube.** They work against the
+  pages this was built on, but YouTube renames things, and each surface keeps its
+  selector list in one array at the top of its file for exactly that reason.
+- **The ambient colour usually comes from the fallback path.** Canvas reads of the
+  video and the thumbnail are both cross-origin and get blocked, so in practice the
+  hash-derived colour is doing most of the work. It is stable per video and never
+  ugly, but it is not the video's actual dominant colour.
+- **No extension icon.** It shows up as a default puzzle piece until one is added.
+- **Firefox is untested** beyond loading the manifest.
+- **Playlists, Subscriptions, History and the Shorts page** get the shared feed
+  cleanup but no dedicated layout of their own yet.
+- **Comments are left alone** apart from width and header styling.
+
+## Project structure
+
+```
+manifest.json            Chromium (MV3)
+manifest.firefox.json    Firefox delta -- keep in sync with the above
+src/
+  lib/defaults.js        The one settings schema
+  lib/budget.js          Shorts budget, midnight rollover, cheat code
+  core.js                Settings, SPA navigation, DOM helpers
+  content.js             Entry point
+  surfaces/              One module per page: guide, watch, shorts, channel, feed
+  ui/                    Rail, settings panel, walkout
+  ambient/               Colour extraction and the glow
+  styles/                tokens, layout, surfaces
+popup/                   Browser-toolbar mount point for the shared panel
+```
+
+## Development
+
+No build step, no `npm install`, no dependencies. Edit a file, hit reload in
+`chrome://extensions`, done.
+
+Every content script is a plain script sharing a `window.SYT` global, because MV3
+content scripts are not modules and there is no import graph to lean on. The UI
+modules use shadow roots so YouTube's stylesheet cannot reach them and theirs
+cannot leak out.
+
+Two things worth knowing before you change anything:
+
+- **Hiding is done with inline `display: none !important` from JS, not from the
+  stylesheets.** Content-script CSS shares the page's author origin, so YouTube's
+  own rules can out-specify ours no matter how they are written. Inline always wins.
+  It is also why the master switch can genuinely restore the page: every hidden node
+  carries `data-syt-hidden`, so turning it off hands them all back.
+- **Do not reparent the player.** Hiding is safe; rewriting the DOM YouTube's own
+  bindings hold references to is not.
 
 ## License
 
-Copyright (c) 2026 Diskette Labs. All rights reserved.
+Copyright (c) 2026 Miles Allen. All rights reserved.
 
-Released under the Diskette Labs Temporary Development License. View, inspect, study,
-and run the source; do not modify, fork, redistribute, or relicense it without
-permission. Diskette Labs intends to release a future version under an open-source
-license, and that release will not retroactively change the terms of this one.
-
-Full text in [`LICENSE.txt`](./LICENSE.txt). Governance and contributor permissions in
-[`CONTRIBUTING.md`](./CONTRIBUTING.md).
+See [`LICENSE.txt`](./LICENSE.txt).
